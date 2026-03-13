@@ -1,4 +1,4 @@
-# pcyy_ros_class_ws
+# dash_ros_class_ws
 
 实验内容：主题、服务、动作（C++/Python，自定义消息/服务/动作）。
 
