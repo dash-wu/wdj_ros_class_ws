@@ -2,9 +2,9 @@
 <package format="2">
   <name>my_class_pkg</name>
   <version>0.0.1</version>
-  <description>ROS class lab package for topics, services, and actions</description>
+  <description>dash-class-3: ROS class lab package for topics, services, and actions</description>
 
-  <maintainer email="you@example.com">your_name</maintainer>
+  <maintainer email="dash-wu@users.noreply.github.com">dash-wu</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -13,6 +13,8 @@
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>upros_message</build_depend>
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
 
@@ -20,6 +22,8 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>dynamic_reconfigure</exec_depend>
+  <exec_depend>upros_message</exec_depend>
   <exec_depend>actionlib</exec_depend>
   <exec_depend>actionlib_msgs</exec_depend>
 

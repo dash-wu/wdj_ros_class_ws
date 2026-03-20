@@ -1,3 +1,6 @@
+# Local catkin workspace root (symlinks into this repo; not part of source)
+ros_class_ws/
+
 # catkin/cmake build artifacts
 build/
 devel/

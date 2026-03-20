@@ -6,6 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  dynamic_reconfigure
+  upros_message
   actionlib
   actionlib_msgs
 )
@@ -32,8 +34,12 @@ generate_messages(
   actionlib_msgs
 )
 
+generate_dynamic_reconfigure_options(
+  cfg/Tutorials.cfg
+)
+
 catkin_package(
-  CATKIN_DEPENDS message_runtime actionlib actionlib_msgs roscpp rospy std_msgs
+  CATKIN_DEPENDS message_runtime actionlib actionlib_msgs roscpp rospy std_msgs dynamic_reconfigure upros_message
 )
 
 include_directories(
@@ -73,6 +79,22 @@ add_executable(ros_action_client src/ros_action_client.cpp)
 target_link_libraries(ros_action_client ${catkin_LIBRARIES})
 add_dependencies(ros_action_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(ros_param src/ros_param.cpp)
+target_link_libraries(ros_param ${catkin_LIBRARIES})
+add_dependencies(ros_param ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(dynamic_reconfigure_node src/dynamic_reconfigure.cpp)
+add_dependencies(dynamic_reconfigure_node ${PROJECT_NAME}_gencfg)
+target_link_libraries(dynamic_reconfigure_node ${catkin_LIBRARIES})
+
+add_executable(ros_dynamic_speed_node src/ros_dynamic_speed.cpp)
+add_dependencies(ros_dynamic_speed_node ${${PROJECT_NAME}_EXPORTED_TARGETS} upros_message_gencfg ${catkin_EXPORTED_TARGETS})
+target_link_libraries(ros_dynamic_speed_node ${catkin_LIBRARIES} ${upros_message_LIBRARIES})
+
+add_executable(ros_log src/ros_log.cpp)
+target_link_libraries(ros_log ${catkin_LIBRARIES})
+add_dependencies(ros_log ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Install Python scripts
 catkin_install_python(PROGRAMS
   scripts/ros_publisher_node.py
@@ -94,6 +116,10 @@ install(TARGETS
   ros_client_node
   ros_action_server
   ros_action_client
+  ros_param
+  dynamic_reconfigure_node
+  ros_dynamic_speed_node
+  ros_log
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
