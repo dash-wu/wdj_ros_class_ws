@@ -1,43 +1,207 @@
-# wdj_ros_class_ws
+# D_ROS_CLASS_WS — 第二周 ROS 实验工作空间
 
-实验内容：主题、服务、动作（C++/Python，自定义消息/服务/动作）。
+## 工作空间结构
 
-## 工作空间与构建
+```
+d_ros_class_ws/
+└── src/
+    └── my_class_pkg/
+        ├── msg/          # 自定义消息
+        ├── srv/          # 自定义服务
+        ├── action/       # 自定义动作
+        ├── src/          # C++ 节点
+        ├── scripts/      # Python 节点
+        └── launch/       # Launch 文件
+```
 
-包源码在仓库内 `src/my_class_pkg`，建议链入 catkin 工作空间后编译（已配置则跳过 `ln`）：
+> 本仓库中另有 `src/upros_message/`（动态参数 `.cfg` 练习用），请与工作空间一同 `catkin_make`。
+
+## 环境准备
 
 ```bash
-ln -sf ~/dash-class-3/src/my_class_pkg ~/dash-class-3/ros_class_ws/src/my_class_pkg
-cd ~/dash-class-3/ros_class_ws
+cd ~/d_ros_class_ws
 catkin_make
+source devel/setup.bash
 ```
 
-**新终端直接使用 `rosrun`**：本机已在 `~/.bashrc` 中叠加 `~/dash-class-3/ros_class_ws/devel/setup.bash`。打开新终端或执行 `source ~/.bashrc` 后即可：
+## 启动指令
+
+### 5.1 C++ 标准消息（Topic）
 
 ```bash
-rospack find my_class_pkg   # 应能打印包路径
+# 终端1 — 启动 ROS Master
+roscore
+
+# 终端2 — 发布者
+rosrun my_class_pkg ros_publisher_node
+
+# 终端3 — 订阅者
+rosrun my_class_pkg ros_subscriber_node
+
+# 或查看话题内容
+rostopic echo /my_topic
 ```
 
-运行任何节点前需有 **roscore**（另开终端执行 `roscore`，或已用 `roslaunch` 带起 master）。
+### 5.2 Python 标准消息（Topic）
 
-## 运行示例
-- **参数**（私有/全局 `getParam` / `setParam`）：`rosrun my_class_pkg ros_param`（先 `roscore`）。可选在 launch 或命令行设置：`_my_param:=custom`（私有）或 `/my_param:=custom`（全局，视节点命名空间而定）。
-- **动态参数（本包 `.cfg`）**：`rosrun my_class_pkg dynamic_reconfigure_node`，用 `rosrun rqt_reconfigure rqt_reconfigure` 打开界面，选 `dynamic_tutorials` 调节 `int_param`、`double_param` 等。
-- **动态参数 + 速度发布（依赖 `upros_message` 的 `.cfg`）**：先起仿真或 turtlesim（`/turtle1/cmd_vel`），再 `rosrun my_class_pkg ros_dynamic_speed_node`，在 rqt_reconfigure 中选对应节点调节 `double_param` 作为线速度。
-- 主题：
-  - `rosrun my_class_pkg ros_publisher_node`
-  - `rosrun my_class_pkg ros_subscriber_node`
-  - Python: `rosrun my_class_pkg ros_publisher_node.py`, `rosrun my_class_pkg ros_subscriber_node.py`
-  - Launch：`roslaunch my_class_pkg bringup_topic.launch`
-- 自定义消息：`rosrun my_class_pkg msg_publisher_node` / `rosrun my_class_pkg msg_subscriber_node`
-- 服务：
-  - `rosrun my_class_pkg ros_server_node`
-  - `rosrun my_class_pkg ros_client_node`
-  - Python: `rosrun my_class_pkg ros_server.py` / `rosrun my_class_pkg ros_client.py`
-- 动作：
-  - `rosrun my_class_pkg ros_action_server`
-  - `rosrun my_class_pkg ros_action_client`
-  - Python: `rosrun my_class_pkg ros_action_server.py` / `rosrun my_class_pkg ros_action_client.py`
+```bash
+# 终端1
+roscore
 
-## 依赖
-`roscpp`, `rospy`, `std_msgs`, `message_generation`, `message_runtime`, `actionlib`, `actionlib_msgs`, `dynamic_reconfigure`；动态参数示例另需包 `upros_message`（与本仓库 `src/upros_message` 一同加入工作空间后 `catkin_make`）。
+# 终端2 — 发布者
+rosrun my_class_pkg ros_publisher_node.py
+
+# 终端3 — 订阅者
+rosrun my_class_pkg ros_subscriber_node.py
+```
+
+### 5.3 C++ 自定义消息（MyMessage）
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — 自定义消息发布者
+rosrun my_class_pkg msg_publisher_node
+
+# 终端3 — 自定义消息订阅者
+rosrun my_class_pkg msg_subscriber_node
+
+# 或查看话题内容
+rostopic echo /my_msg_topic
+```
+
+### 5.4 参数与动态参数（补充）
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — /ros 参数读写（私有 / 全局）
+rosrun my_class_pkg ros_param
+
+# 终端3 — 本包 dynamic_reconfigure（可用 rqt_reconfigure 调参）
+rosrun my_class_pkg dynamic_reconfigure_node
+# 另开终端可选：rosrun rqt_reconfigure rqt_reconfigure
+
+# 依赖 upros_message 配置的动态参数 + 向 /turtle1/cmd_vel 发布速度（需先有 turtlesim 或仿真）
+rosrun my_class_pkg ros_dynamic_speed_node
+```
+
+### 5.5 Launch 文件一键启动（发布者 + 订阅者）
+
+```bash
+roslaunch my_class_pkg bringup_topic.launch
+```
+
+无需单独启动 roscore，launch 文件会自动处理。
+
+## 服务实验（Service）
+
+### C++ 服务
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — 服务端
+rosrun my_class_pkg ros_server_node
+
+# 终端3 — 客户端（一次性请求）
+rosrun my_class_pkg ros_client_node
+```
+
+### Python 服务
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — 服务端
+rosrun my_class_pkg ros_server.py
+
+# 终端3 — 客户端
+rosrun my_class_pkg ros_client.py
+```
+
+## 动作实验（Action）
+
+### C++ 动作
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — 动作服务端
+rosrun my_class_pkg ros_action_server
+
+# 终端3 — 动作客户端
+rosrun my_class_pkg ros_action_client
+```
+
+### Python 动作
+
+```bash
+# 终端1
+roscore
+
+# 终端2 — 动作服务端
+rosrun my_class_pkg ros_action_server.py
+
+# 终端3 — 动作客户端
+rosrun my_class_pkg ros_action_client.py
+```
+
+## 验证自定义消息 / 服务 / 动作
+
+```bash
+source ~/d_ros_class_ws/devel/setup.bash
+
+rosmsg show my_class_pkg/MyMessage
+rossrv show my_class_pkg/MyServiceMsg
+rosmsg show my_class_pkg/MyActionGoal
+```
+
+## 传感器实验
+
+所有传感器节点均需先启动硬件通信：
+
+```bash
+roslaunch upros_bringup bringup_w2a.launch
+```
+
+### 碰撞传感器（Bump Sensor）
+
+```bash
+# 订阅并打印碰撞传感器数据
+rosrun my_class_pkg ros_bump_node
+
+# 基于碰撞传感器的自动避障（触碰后后退+转向）
+rosrun my_class_pkg ros_bump_avoid_node
+```
+
+### 超声波 / TOF 传感器
+
+```bash
+# 订阅并打印超声波距离数据（左/前/右）
+rosrun my_class_pkg ros_sonic_node
+
+# 基于 TOF 传感器的自动避障（距离 < 0.3m 时转向）
+rosrun my_class_pkg ros_tof_avoid_node
+```
+
+### IMU 传感器
+
+```bash
+# 订阅并打印 IMU 数据（加速度 / 角速度 / 姿态四元数）
+rosrun my_class_pkg ros_imu_node
+
+# 基于 IMU 自旋控制（旋转精确 180°后自动停止）
+rosrun my_class_pkg ros_imu_spin_node
+```
+
+> **说明**：上列传感器节点需工作空间中已包含对应源码并成功编译；若仅克隆本仓库基础实验包，请按课程资料补全传感器实验代码或合并完整工作空间后再运行。
+
+## 依赖（构建）
+
+`roscpp`, `rospy`, `std_msgs`, `message_generation`, `message_runtime`, `actionlib`, `actionlib_msgs`, `dynamic_reconfigure`；动态参数速度示例另需同工作空间内的 `upros_message` 包。
